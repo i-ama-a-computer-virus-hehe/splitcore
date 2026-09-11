@@ -473,11 +473,11 @@ function connectMultiplayer(){
  try{
   socket=new WebSocket(url);
   socket.addEventListener('open',()=>{socket.send(JSON.stringify({type:'name',name:coreName}));});
-  socket.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.type==='welcome')clientId=m.id;if(m.type==='players'){if(Array.isArray(m.resources))networkResources=m.resources;remotePlayers=new Map(m.players.filter(p=>p.id!==clientId).map(p=>[p.id,p]));}});
+  socket.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.type==='welcome')clientId=m.id;if(m.type==='players'||m.type==='worldSnapshot'){if(Array.isArray(m.resources))networkResources=m.resources;if(Array.isArray(m.players))remotePlayers=new Map(m.players.filter(p=>p.id!==clientId).map(p=>[p.id,p]));}});
  }catch(e){}
 }
 
-function loop(){if(gameStarted){update();draw();if(socket&&socket.readyState===1)socket.send(JSON.stringify({type:'state',state:{name:coreName,x:player.x,y:player.y,mass:player.mass,droneCount:player.drones.length,totalMass:player.totalMass||player.mass,hp:player.hp,maxHp:player.maxHp,r:player.r,tier:player.tier,bullets:bullets.map(b=>({x:b.x,y:b.y,size:b.size,damage:b.damage})),drones:player.drones.map(d=>({x:d.x,y:d.y,size:d.size,hp:d.hp,maxHp:d.maxHp,tier:d.tier,angle:d.angle}))}}));updateLeaderboard()}requestAnimationFrame(loop)}
+function loop(){if(gameStarted){update();draw();if(socket&&socket.readyState===1){socket.send(JSON.stringify({type:'requestWorld'}));socket.send(JSON.stringify({type:'state',state:{name:coreName,x:player.x,y:player.y,mass:player.mass,droneCount:player.drones.length,totalMass:player.totalMass||player.mass,hp:player.hp,maxHp:player.maxHp,r:player.r,tier:player.tier,bullets:bullets.map(b=>({x:b.x,y:b.y,size:b.size,damage:b.damage})),drones:player.drones.map(d=>({x:d.x,y:d.y,size:d.size,hp:d.hp,maxHp:d.maxHp,tier:d.tier,angle:d.angle}))}}));}updateLeaderboard()}requestAnimationFrame(loop)}
 reset();loop();
 const upgradeBtn=document.getElementById('upgradeBtn'),upgradePanel=document.getElementById('upgradePanel'),upgradeList=document.getElementById('upgradeList');
 upgradeBtn.onclick=()=>{upgradePanel.style.display=upgradePanel.style.display==='none'?'block':'none';renderUpgrades()};
