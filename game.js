@@ -279,8 +279,9 @@ function update(){
   // Larger Cores see more of the battlefield; smaller Cores see less.
   targetZoom=clamp(Math.pow(30/Math.max(18,player.r),0.52),0.64,1.14);
   zoom += (targetZoom-zoom)*0.08;
-  cam.x=clamp(player.x,W/(2*zoom),world.w-W/(2*zoom));
-  cam.y=clamp(player.y,H/(2*zoom),world.h-H/(2*zoom));
+  const viewW=W/zoom,viewH=H/zoom;
+  cam.x=clamp(player.x,viewW/2,world.w-viewW/2);
+  cam.y=clamp(player.y,viewH/2,world.h-viewH/2);
 }
 function resolveCircleCollision(a,b,minimumDistance){
   const dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy)||.001;
@@ -352,7 +353,7 @@ function updateParticles(){
 function draw(){
   ctx.clearRect(0,0,W,H);ctx.save();
   ctx.translate(W/2,H/2);ctx.scale(zoom,zoom);ctx.translate(-cam.x,-cam.y);
-  ctx.fillStyle='#0b1020';ctx.fillRect(cam.x,cam.y,W,H);
+  ctx.fillStyle='#0b1020';ctx.fillRect(cam.x-viewW/2,cam.y-viewH/2,viewW,viewH);
   ctx.strokeStyle='rgba(255,255,255,.035)';ctx.lineWidth=1;
   for(let x=0;x<=world.w;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,world.h);ctx.stroke()}
   for(let y=0;y<=world.h;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(world.w,y);ctx.stroke()}
