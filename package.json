@@ -1,7 +1,1 @@
-{
-  "name": "splitcore-server",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {"start": "node server.js"},
-  "dependencies": {"ws": "^8.18.0"}
-}
+{"name":"splitcore","version":"1.0.0","private":true,"scripts":{"start":"node server.js"},"dependencies":{"ws":"^8.18.0"}}
