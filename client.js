@@ -343,7 +343,7 @@ function updateBullets(){
         for(const d of e.drones)if(dist(b,d)<b.size+d.size){hitEntity(d,b.damage);hit=true;break}
         if(hit)break;
       }
-      if(!hit)for(const p of remotePlayers.values()){if(dist(b,p)<b.size+(p.r||24)){p.hp=(p.hp??p.maxHp??100)-b.damage;hit=true;break}if(p.drones)for(const d of p.drones)if(dist(b,d)<b.size+d.size){d.hp-=b.damage;hit=true;break}if(hit)break;}
+      if(!hit)for(const p of remotePlayers.values()){if(dist(b,p)<b.size+(p.r||24)){hit=true;break}if(p.drones)for(const d of p.drones)if(dist(b,d)<b.size+d.size){hit=true;break}if(hit)break;}
       if(!hit)for(const r of resources)if(dist(b,r)<b.size+r.r){r.hp-=b.damage; r.regen=0; pushEntity(r,b,0.35+ b.size*0.04); hit=true; if(r.hp<=0){addMass(r.value);burst(r.x,r.y,7,r.color||colors[r.tier]);resources.splice(resources.indexOf(r),1)}break}
       if(hit)bullets.splice(i,1);
     }else if(!player.spawnInvincible&&dist(b,player)<b.size+player.r){hitEntity(player,b.damage);bullets.splice(i,1)}
@@ -419,7 +419,7 @@ function drawCore(o,enemy){
   // Barrel sits behind the Core body, like a Diep.io cannon.
   drawGun(o,enemy);
   const vr=o===player && Number.isFinite(o.displayR)?o.displayR:o.r;
-  const coreColor=enemy?'#b84b68':(colors[Math.min(upgrades.core,colors.length-1)]||colors[0]);
+  const coreColor=enemy?(colors[Math.max(0,Math.min(Number(o.tier)||0,colors.length-1))]||colors[0]):(colors[Math.min(upgrades.core,colors.length-1)]||colors[0]);
   ctx.beginPath();ctx.fillStyle=coreColor;ctx.arc(o.x,o.y,vr,0,Math.PI*2);ctx.fill();
   ctx.lineWidth=3;ctx.strokeStyle=enemy?'#702d43':darkenColor(coreColor,.42);ctx.stroke();
   ctx.beginPath();ctx.fillStyle=enemy?'#7d324a':darkenColor(coreColor,.72);ctx.arc(o.x,o.y,vr*.55,0,Math.PI*2);ctx.fill();
@@ -477,7 +477,7 @@ function connectMultiplayer(){
  }catch(e){}
 }
 
-function loop(){if(gameStarted){update();draw();if(socket&&socket.readyState===1)socket.send(JSON.stringify({type:'state',state:{name:coreName,x:player.x,y:player.y,mass:player.mass,droneCount:player.drones.length,totalMass:player.totalMass||player.mass,hp:player.hp,maxHp:player.maxHp,r:player.r,tier:player.tier,drones:player.drones.map(d=>({x:d.x,y:d.y,size:d.size,hp:d.hp,maxHp:d.maxHp,tier:d.tier,angle:d.angle}))}}));updateLeaderboard()}requestAnimationFrame(loop)}
+function loop(){if(gameStarted){update();draw();if(socket&&socket.readyState===1)socket.send(JSON.stringify({type:'state',state:{name:coreName,x:player.x,y:player.y,mass:player.mass,droneCount:player.drones.length,totalMass:player.totalMass||player.mass,hp:player.hp,maxHp:player.maxHp,r:player.r,tier:player.tier,bullets:bullets.map(b=>({x:b.x,y:b.y,size:b.size,damage:b.damage})),drones:player.drones.map(d=>({x:d.x,y:d.y,size:d.size,hp:d.hp,maxHp:d.maxHp,tier:d.tier,angle:d.angle}))}}));updateLeaderboard()}requestAnimationFrame(loop)}
 reset();loop();
 const upgradeBtn=document.getElementById('upgradeBtn'),upgradePanel=document.getElementById('upgradePanel'),upgradeList=document.getElementById('upgradeList');
 upgradeBtn.onclick=()=>{upgradePanel.style.display=upgradePanel.style.display==='none'?'block':'none';renderUpgrades()};
